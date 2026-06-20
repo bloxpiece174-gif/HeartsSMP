@@ -14,7 +14,7 @@ public class NatureBloom extends Skill {
 
     @Override
     public void onPassiveTick(Player player, int mastery) {
-        if (mastery >= 3 && player.getHealth() < player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue() - 2) {
+        if (mastery >= 3 && player.getHealth() < player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue() - 2) {
             if (!player.hasPotionEffect(PotionEffectType.REGENERATION)) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 40, 0, true, false));
             }
