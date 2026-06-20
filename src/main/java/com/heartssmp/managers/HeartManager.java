@@ -49,7 +49,7 @@ public class HeartManager {
     }
 
     public void applyMaxHealth(Player player, PlayerData data) {
-        AttributeInstance attr = player.getAttribute(Attribute.MAX_HEALTH);
+        AttributeInstance attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (attr == null) return;
         double newMax = data.getHearts() * 2.0;
         newMax = Math.max(2.0, newMax);
