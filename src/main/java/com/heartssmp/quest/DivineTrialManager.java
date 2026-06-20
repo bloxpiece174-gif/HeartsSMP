@@ -325,9 +325,8 @@ public class DivineTrialManager {
                 "§5§l[???] §r§dLong ago, I too was bound by hunger like yours — for power, for purpose.",
                 "§5§l[???] §r§dI was not always what you see now. I was a wanderer, same as you, who refused to stop climbing.",
                 "§5§l[???] §r§dMany came before you. Their bones rest in My halls. You... you are still standing.",
-                "§5§l[???] §r§dVery well. Rise, mortal. Carry what I carry — but never forget where you began.",
+                "§5§l[???] §r§dVery well. Rise, mortal. Carry what I carry — but never forget where you began."
         );
-
         new BukkitRunnable() {
             int index = 0;
 
