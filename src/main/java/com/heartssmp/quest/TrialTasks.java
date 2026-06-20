@@ -54,9 +54,9 @@ public class TrialTasks {
             Vex vex = (Vex) player.getWorld().spawnEntity(spawnLoc, EntityType.VEX);
             vex.setCustomName("§5Divine Guardian");
             vex.setCustomNameVisible(true);
-            vex.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20 + (wave * 10));
+            vex.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(20 + (wave * 10));
             vex.setHealth(20 + (wave * 10));
-            vex.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(4 + wave);
+            vex.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(4 + wave);
             spawned.add(vex);
         }
 
