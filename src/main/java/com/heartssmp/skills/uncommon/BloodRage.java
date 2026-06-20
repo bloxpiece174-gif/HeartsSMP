@@ -15,7 +15,7 @@ public class BloodRage extends Skill {
     @Override
     public void onPassiveTick(Player player, int mastery) {
         double hp = player.getHealth();
-        double max = player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue();
+        double max = player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue();
         if (hp < max * 0.4) {
             int strengthLevel = mastery >= 9 ? 2 : mastery >= 4 ? 1 : 0;
             player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 60, strengthLevel, true, false));
