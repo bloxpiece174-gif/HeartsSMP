@@ -9,7 +9,7 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <n>HeartsSMP</n>
+    <name>HeartsSMP</name>
     <description>Hearts, Lives, Skills, and Gems SMP Plugin</description>
 
     <properties>
