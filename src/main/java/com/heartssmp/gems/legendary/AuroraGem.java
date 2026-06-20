@@ -14,7 +14,7 @@ public class AuroraGem extends Gem {
 
     @Override
     public void onPassiveTick(Player player, int mastery) {
-        if (player.getHealth() < player.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue() * 0.6) {
+        if (player.getHealth() < player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue() * 0.6) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 80, mastery - 1, true, false));
         }
         if (mastery >= 2) {
