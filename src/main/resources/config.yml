@@ -1,0 +1,44 @@
+hearts:
+  starting: 10
+  maximum: 30
+  kill-reward: 1
+
+lives:
+  starting: 5
+  maximum: 10
+  sacrifice-heart-cost: 2
+  sacrifice-min-hearts: 5
+
+elimination:
+  ban-duration-weeks: 2
+
+skills:
+  kills-per-skill: 250
+
+gems:
+  starter-weights:
+    COMMON_EMBER: 25
+    COMMON_TIDE: 22
+    COMMON_STONE: 20
+    UNCOMMON_GALE: 12
+    EPIC_SHADOW: 8
+    LEGENDARY_AURORA: 6
+    MYTHICAL_VOID: 4
+    DIVINE_CELESTIA: 3
+
+messages:
+  prefix: "&8[&cHeartsSMP&8] &r"
+
+divine-trial:
+  # World + coordinates of the ALTAR the player must build (center of the 6x6 platform)
+  altar-world: "world"
+  altar-x: 500
+  altar-y: 100
+  altar-z: 500
+  # World + coordinates of the floating Divine Palace, far from spawn
+  palace-world: "world"
+  palace-x: 10000
+  palace-y: 250
+  palace-z: 10000
+  # Number of one-time "Summon God" charges granted ONLY to the first player ever to finish, once they hit mastery 15
+  first-completer-summon-charges: 3
