@@ -37,6 +37,9 @@ public class HeartsSMPPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityDeathListener(this), this);
         getServer().getPluginManager().registerEvents(new DivineTrialListener(this), this);
+        getServer().getPluginManager().registerEvents(new ItemAbilityListener(this), this);
+        getServer().getPluginManager().registerEvents(new SkillAbilityListener(this), this);
+        getServer().getPluginManager().registerEvents(new GemAbilityListener(this), this);
 
         // Commands
         getCommand("sacrifice").setExecutor(new SacrificeCommand(this));
