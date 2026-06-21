@@ -41,6 +41,20 @@ public class LivesManager {
         removeLives(player, 1);
     }
 
+    // Sacrifice 1 life voluntarily (used by /sacrifice command)
+    public void sacrifice(Player player) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        if (data == null) return;
+
+        if (data.getLives() <= 1) {
+            player.sendMessage(plugin.prefix() + "§cYou cannot sacrifice your last life!");
+            return;
+        }
+
+        removeLives(player, 1);
+        player.sendMessage(plugin.prefix() + "§eYou sacrificed a life. §7Lives remaining: §e" + data.getLives());
+    }
+
     // Called on normal player death from PlayerDeathListener
     public void onPlayerDeath(Player player) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
