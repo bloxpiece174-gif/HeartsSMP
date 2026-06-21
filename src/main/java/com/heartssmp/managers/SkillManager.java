@@ -81,7 +81,7 @@ public class SkillManager {
         if (data == null) return;
         for (String skillId : data.getSkills()) {
             Skill skill = registry.get(skillId);
-            if (skill != null) skill.onKill(killer, victim, data.getSkillMastery(skillId));
+            if (skill != null) skill.onPlayerKill(killer, victim, data.getSkillMastery(skillId));
         }
     }
 
@@ -115,6 +115,13 @@ public class SkillManager {
         return totalKills / baseKills;
     }
 
+    private void announceUnlock(Player player, Skill skill) {
+        player.sendMessage(plugin.prefix() + "§6§l⚔ New Skill Unlocked: " + skill.getFormattedName());
+        for (int i = 1; i <= 5; i++) {
+            skill.onMoveUnlock(player, i);
+        }
+    }
+
     private void grantRandomSkill(Player player, PlayerData data) {
         List<String> available = new ArrayList<>();
         for (String id : registry.keySet()) {
@@ -126,7 +133,7 @@ public class SkillManager {
         String picked = available.get(new Random().nextInt(available.size()));
         data.addSkill(picked);
         Skill skill = registry.get(picked);
-        if (skill != null) skill.onUnlock(player);
+        if (skill != null) announceUnlock(player, skill);
         plugin.getDivineTrialManager().checkMythicalCompletion(player, data);
         plugin.getDataManager().save(player.getUniqueId());
     }
@@ -140,8 +147,20 @@ public class SkillManager {
         }
         data.addSkill("graceful_enlightenment");
         Skill skill = registry.get("graceful_enlightenment");
-        if (skill != null) skill.onUnlock(player);
+        if (skill != null) announceUnlock(player, skill);
         data.setGodSummonsRemaining(3);
         plugin.getDataManager().save(player.getUniqueId());
+    }
+
+    public boolean upgradeMastery(Player player, String skillId) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        if (data == null) return false;
+        boolean upgraded = data.upgradeSkillMastery(skillId);
+        if (upgraded) {
+            plugin.getDataManager().save(player.getUniqueId());
+            player.sendMessage(plugin.prefix() + "§aMastery upgraded! §7New mastery: §e"
+                    + data.getSkillMastery(skillId) + "/15");
+        }
+        return upgraded;
     }
 }
