@@ -12,6 +12,11 @@ public class StormCaller extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onMoveUnlock(Player player, int moveIndex) {
         switch (moveIndex) {
             case 1 -> player.sendMessage("§9⛈ Summon Storm§7: Call a localized storm that deals 3 lightning hits to enemies within 8 blocks over 5s.");
