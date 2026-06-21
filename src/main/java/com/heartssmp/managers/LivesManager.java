@@ -2,12 +2,8 @@ package com.heartssmp.managers;
 
 import com.heartssmp.HeartsSMPPlugin;
 import com.heartssmp.data.PlayerData;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.BanList;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
-
-import java.util.Date;
 
 public class LivesManager {
     private final HeartsSMPPlugin plugin;
@@ -16,109 +12,92 @@ public class LivesManager {
         this.plugin = plugin;
     }
 
-    public int getMaxLives() {
-        return plugin.getConfig().getInt("lives.maximum", 10);
-    }
-
-    public int getSacrificeHeartCost() {
-        return plugin.getConfig().getInt("lives.sacrifice-heart-cost", 2);
-    }
-
-    public int getSacrificeMinHearts() {
-        return plugin.getConfig().getInt("lives.sacrifice-min-hearts", 5);
-    }
-
-    public boolean sacrifice(Player player) {
+    public void setLives(Player player, int amount) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        if (data == null) return false;
-
-        if (data.getHearts() < getSacrificeMinHearts()) {
-            player.sendMessage(plugin.prefix() + "§cYou need at least §e" + getSacrificeMinHearts() + " hearts §cto sacrifice!");
-            return false;
-        }
-
-        if (data.getLives() >= getMaxLives()) {
-            player.sendMessage(plugin.prefix() + "§cYou are already at maximum lives §7(" + getMaxLives() + ")!");
-            return false;
-        }
-
-        int cost = getSacrificeHeartCost();
-        data.setHearts(data.getHearts() - cost);
-        data.setLives(data.getLives() + 1);
-        plugin.getHeartManager().applyMaxHealth(player, data);
+        if (data == null) return;
+        data.setLives(amount);
         plugin.getDataManager().save(player.getUniqueId());
-
-        player.sendMessage(plugin.prefix() + "§eSacrificed §c" + cost + " hearts §efor §a+1 Life§e! "
-                + "§c❤ " + data.getHearts() + " §7| §a♥ " + data.getLives() + " lives");
-
-        plugin.getGemManager().applyGemEffect(player);
-        return true;
+        player.sendMessage(plugin.prefix() + "§aYour lives have been set to §e" + amount);
     }
 
+    public void addLives(Player player, int amount) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        if (data == null) return;
+        data.setLives(data.getLives() + amount);
+        plugin.getDataManager().save(player.getUniqueId());
+        player.sendMessage(plugin.prefix() + "§a+" + amount + " §alives!");
+    }
+
+    public void removeLives(Player player, int amount) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        if (data == null) return;
+        int newVal = Math.max(data.getLives() - amount, 0);
+        data.setLives(newVal);
+        plugin.getDataManager().save(player.getUniqueId());
+    }
+
+    // Remove exactly 1 life
+    public void removeLife(Player player) {
+        removeLives(player, 1);
+    }
+
+    // Called on normal player death from PlayerDeathListener
     public void onPlayerDeath(Player player) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         if (data == null) return;
 
-        int newLives = data.getLives() - 1;
-        data.setLives(Math.max(0, newLives));
+        // Remove 1 heart first
+        int hearts = data.getHearts() - 1;
+        data.setHearts(Math.max(hearts, 0));
 
-        plugin.getSkillManager().onPlayerDeath(player, data);
+        if (hearts <= 0) {
+            // No hearts left — lose a life
+            int lives = data.getLives() - 1;
+            data.setLives(Math.max(lives, 0));
 
-        if (data.getLives() <= 0) {
-            eliminate(player, data);
+            if (lives <= 0) {
+                // Eliminated
+                handleElimination(player);
+            } else {
+                // Reset hearts, lose a life
+                int starting = plugin.getConfig().getInt("hearts.starting", 10);
+                data.setHearts(starting);
+                plugin.getHeartManager().resetHearts(player);
+                plugin.getDataManager().save(player.getUniqueId());
+                player.sendMessage(plugin.prefix() + "§cYou lost a life! §7Lives remaining: §e" + data.getLives());
+            }
         } else {
-            player.sendMessage(plugin.prefix() + "§cYou lost a life! §7Lives remaining: §a" + data.getLives());
+            plugin.getHeartManager().removeHearts(player, 1);
+            plugin.getDataManager().save(player.getUniqueId());
+            player.sendMessage(plugin.prefix() + "§cYou lost a heart! §7Hearts remaining: §e" + data.getHearts());
         }
-
-        plugin.getDataManager().save(player.getUniqueId());
     }
 
-    private void eliminate(Player player, PlayerData data) {
+    public void handleElimination(Player player) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        if (data == null) return;
         data.setEliminated(true);
-        data.setHearts(0);
         data.setLives(0);
+        data.setHearts(0);
+        plugin.getDataManager().save(player.getUniqueId());
 
-        int banWeeks = plugin.getConfig().getInt("elimination.ban-duration-weeks", 2);
-        long banMs = (long) banWeeks * 7 * 24 * 60 * 60 * 1000;
-        Date banExpiry = new Date(System.currentTimeMillis() + banMs);
-
-        String reason = "§c§lELIMINATED from HeartsSMP!\n§r§7Your lives reached 0.\n§7You are banned for " + banWeeks + " weeks.\n§7Ban expires: " + banExpiry;
-
+        // Ban the player
         plugin.getServer().getBanList(BanList.Type.NAME).addBan(
-                player.getName(), reason, banExpiry, "HeartsSMP"
+                player.getName(),
+                "§cEliminated from HeartsSMP — all lives lost.",
+                null, "HeartsSMP"
         );
 
-        player.sendMessage(plugin.prefix() + "§4§lYOU HAVE BEEN ELIMINATED! §cYou are banned for " + banWeeks + " weeks.");
+        plugin.getServer().broadcastMessage("");
+        plugin.getServer().broadcastMessage("§c§l✦ ══════════════════════════════════ ✦");
+        plugin.getServer().broadcastMessage("§4§l        ☠ PLAYER ELIMINATED ☠        ");
+        plugin.getServer().broadcastMessage("§e  " + player.getName() + " §7has lost all their lives.");
+        plugin.getServer().broadcastMessage("§7  They have been eliminated from HeartsSMP.");
+        plugin.getServer().broadcastMessage("§c§l✦ ══════════════════════════════════ ✦");
+        plugin.getServer().broadcastMessage("");
 
-        plugin.getServer().broadcast(
-                Component.text("[HeartsSMP] ☠ " + player.getName() + " has been ELIMINATED from the SMP!", NamedTextColor.RED)
-        );
-
-        player.kickPlayer("§c§lELIMINATED!\n§rYour lives reached 0.\nBanned for " + banWeeks + " weeks.");
-    }
-
-    public boolean addLives(Player player, int amount) {
-        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        if (data == null) return false;
-        int newLives = Math.min(data.getLives() + amount, getMaxLives());
-        data.setLives(newLives);
-        plugin.getDataManager().save(player.getUniqueId());
-        return true;
-    }
-
-    public boolean removeLives(Player player, int amount) {
-        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        if (data == null) return false;
-        data.setLives(Math.max(0, data.getLives() - amount));
-        plugin.getDataManager().save(player.getUniqueId());
-        return true;
-    }
-
-    public boolean setLives(Player player, int amount) {
-        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        if (data == null) return false;
-        data.setLives(Math.max(0, Math.min(amount, getMaxLives())));
-        plugin.getDataManager().save(player.getUniqueId());
-        return true;
+        player.sendMessage("§4§l☠ You have been eliminated from HeartsSMP.");
+        player.sendMessage("§7Ask an admin to use §e/adminunban §7to restore you.");
+        player.kickPlayer("§4☠ Eliminated from HeartsSMP.\n§7Contact an admin to be restored.");
     }
 }
