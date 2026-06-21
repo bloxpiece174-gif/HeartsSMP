@@ -2,6 +2,8 @@ package com.heartssmp;
 
 import com.heartssmp.commands.*;
 import com.heartssmp.data.DataManager;
+import com.heartssmp.god.DivineWorldManager;
+import com.heartssmp.god.GodManager;
 import com.heartssmp.listeners.*;
 import com.heartssmp.managers.*;
 import com.heartssmp.quest.DivineTrialManager;
@@ -16,6 +18,8 @@ public class HeartsSMPPlugin extends JavaPlugin {
     private GemManager gemManager;
     private ItemManager itemManager;
     private DivineTrialManager divineTrialManager;
+    private GodManager godManager;
+    private DivineWorldManager divineWorldManager;
 
     private int passiveTaskId = -1;
 
@@ -31,6 +35,8 @@ public class HeartsSMPPlugin extends JavaPlugin {
         gemManager = new GemManager(this);
         itemManager = new ItemManager(this);
         divineTrialManager = new DivineTrialManager(this);
+        divineWorldManager = new DivineWorldManager(this);
+        godManager = new GodManager(this); // registers its own chat listener
 
         // Listeners
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
@@ -39,7 +45,7 @@ public class HeartsSMPPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DivineTrialListener(this), this);
         getServer().getPluginManager().registerEvents(new ItemAbilityListener(this), this);
         getServer().getPluginManager().registerEvents(new SkillAbilityListener(this), this);
-        getServer().getPluginManager().registerEvents(new GemAbilityListener(this), this);
+        getServer().getPluginManager().registerEvents(new GemWeaponListener(this), this);
 
         // Commands
         getCommand("sacrifice").setExecutor(new SacrificeCommand(this));
@@ -54,9 +60,11 @@ public class HeartsSMPPlugin extends JavaPlugin {
         getCommand("adminskill").setExecutor(new AdminCommand(this, "skill"));
         getCommand("adminitem").setExecutor(new AdminCommand(this, "item"));
         getCommand("adminunban").setExecutor(new AdminCommand(this, "unban"));
+        getCommand("adminmastery").setExecutor(new AdminCommand(this, "mastery"));
+        getCommand("admingodsummon").setExecutor(new AdminCommand(this, "godsummon"));
         getCommand("godsummon").setExecutor(new GodSummonCommand(this));
 
-        // Passive tick every 3 seconds (60 ticks)
+        // Passive tick every 3 seconds
         passiveTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
             for (org.bukkit.entity.Player player : getServer().getOnlinePlayers()) {
                 skillManager.runPassiveTick(player);
@@ -65,19 +73,20 @@ public class HeartsSMPPlugin extends JavaPlugin {
         }, 60L, 60L);
 
         // Auto-save every 5 minutes
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
-            dataManager.saveAll();
-        }, 6000L, 6000L);
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, () ->
+                dataManager.saveAll(), 6000L, 6000L);
 
-        getLogger().info("HeartsSMP Plugin enabled! " + skillManager.getAllSkills().size() + " skills, "
-                + gemManager.getAllGems().size() + " gems, " + itemManager.getAllItems().size() + " items loaded.");
+        getLogger().info("HeartsSMP enabled! Skills: " + skillManager.getAllSkills().size()
+                + " | Gems: " + gemManager.getAllGems().size()
+                + " | Items: " + itemManager.getAllItems().size());
     }
 
     @Override
     public void onDisable() {
         if (passiveTaskId != -1) getServer().getScheduler().cancelTask(passiveTaskId);
+        godManager.despawnAll();
         dataManager.saveAll();
-        getLogger().info("HeartsSMP Plugin disabled. All data saved.");
+        getLogger().info("HeartsSMP disabled. All data saved.");
     }
 
     public String prefix() {
@@ -91,4 +100,6 @@ public class HeartsSMPPlugin extends JavaPlugin {
     public GemManager getGemManager() { return gemManager; }
     public ItemManager getItemManager() { return itemManager; }
     public DivineTrialManager getDivineTrialManager() { return divineTrialManager; }
+    public GodManager getGodManager() { return godManager; }
+    public DivineWorldManager getDivineWorldManager() { return divineWorldManager; }
 }
