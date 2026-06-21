@@ -12,6 +12,11 @@ public class HellstormGate extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onPlayerKill(Player killer, Player victim, int mastery) {
         victim.getWorld().spawnParticle(Particle.FLAME, victim.getLocation(), 100, 1, 1.5, 1, 0.1);
         victim.getWorld().spawnParticle(Particle.SOUL, victim.getLocation(), 30, 0.5, 1, 0.5, 0.05);
