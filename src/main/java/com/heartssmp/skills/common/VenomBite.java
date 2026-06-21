@@ -13,6 +13,11 @@ public class VenomBite extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onPlayerKill(Player killer, Player victim, int mastery) {
         killer.getWorld().spawnParticle(Particle.FALLING_SPORE_BLOSSOM, victim.getLocation(), 20, 0.5, 1, 0.5, 0.02);
     }
