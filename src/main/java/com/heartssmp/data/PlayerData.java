@@ -21,10 +21,14 @@ public class PlayerData {
     private final Map<String, Integer> gemSubmissions = new HashMap<>();
     private int gemMastery;
 
-    // Divine Trial quest progress: NOT_STARTED, MAP_GIVEN, ALTAR_BUILT, IN_TRIAL, COMPLETED
+    // Divine Trial
     private String divineTrialStage = "NOT_STARTED";
-    private int divineTrialTaskIndex = 0; // 0=combat,1=parkour,2=puzzle, 3=done
-    private int godSummonsRemaining = 0; // only the FIRST completer ever gets 3 charges
+    private int divineTrialTaskIndex = 0;
+    private int godSummonsUsed = 0; // how many times god has been summoned (max 3)
+    private int godSummonsRemaining = 0;
+
+    // Divine World
+    private boolean inDivineWorld = false;
 
     public PlayerData(UUID uuid, String playerName, int startingHearts, int startingLives) {
         this.uuid = uuid;
@@ -62,6 +66,11 @@ public class PlayerData {
 
     public int getGemMastery() { return gemMastery; }
     public void setGemMastery(int mastery) { this.gemMastery = mastery; }
+    public boolean upgradeGemMastery() {
+        if (gemMastery >= 3) return false;
+        gemMastery++;
+        return true;
+    }
 
     public int getGemKills(String category) { return gemKills.getOrDefault(category, 0); }
     public void addGemKills(String category, int amount) {
@@ -74,7 +83,6 @@ public class PlayerData {
     }
 
     public List<String> getSkills() { return Collections.unmodifiableList(skills); }
-
     public boolean hasSkill(String skillId) { return skills.contains(skillId); }
 
     public void addSkill(String skillId) {
@@ -106,14 +114,21 @@ public class PlayerData {
         return true;
     }
 
+    public void maxSkillMastery(String skillId) {
+        if (skills.contains(skillId)) skillMastery.put(skillId, 15);
+    }
+
+    public void maxAllSkillMastery() {
+        for (String s : skills) skillMastery.put(s, 15);
+    }
+
     public int getTotalCombinedKills() { return totalKills + mobKills; }
 
     public int getNextSkillKillThreshold(int baseKills) {
-        int skillsEarned = skills.size();
-        return (skillsEarned + 1) * baseKills;
+        return (skills.size() + 1) * baseKills;
     }
 
-    // --- Divine Trial quest state ---
+    // Divine Trial
     public String getDivineTrialStage() { return divineTrialStage; }
     public void setDivineTrialStage(String stage) { this.divineTrialStage = stage; }
 
@@ -125,6 +140,13 @@ public class PlayerData {
     public boolean useGodSummon() {
         if (godSummonsRemaining <= 0) return false;
         godSummonsRemaining--;
+        godSummonsUsed++;
         return true;
     }
+    public int getGodSummonsUsed() { return godSummonsUsed; }
+    public void setGodSummonsUsed(int n) { this.godSummonsUsed = n; }
+
+    // Divine World
+    public boolean isInDivineWorld() { return inDivineWorld; }
+    public void setInDivineWorld(boolean b) { this.inDivineWorld = b; }
 }
