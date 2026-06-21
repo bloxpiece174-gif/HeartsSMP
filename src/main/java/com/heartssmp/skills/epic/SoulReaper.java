@@ -13,6 +13,11 @@ public class SoulReaper extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onPlayerKill(Player killer, Player victim, int mastery) {
         killer.getWorld().spawnParticle(Particle.SOUL, victim.getLocation(), 40, 0.5, 1, 0.5, 0.05);
         killer.getWorld().playSound(victim.getLocation(), Sound.ENTITY_WITHER_AMBIENT, 0.7f, 0.6f);
