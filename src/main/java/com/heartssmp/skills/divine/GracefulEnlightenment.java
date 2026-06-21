@@ -14,20 +14,6 @@ public class GracefulEnlightenment extends Skill {
     }
 
     @Override
-    public void onUnlock(Player player) {
-        player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 300, 2, 2, 2, 0.3);
-        player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 100, 1.5, 1.5, 1.5, 0.2);
-        player.getWorld().playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 2f, 0.8f);
-        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 2f, 1.5f);
-        player.getServer().broadcast(
-            net.kyori.adventure.text.Component.text(
-                "✨ " + player.getName() + " has obtained DIVINE GRACE — Graceful Enlightenment! ✨",
-                net.kyori.adventure.text.format.TextColor.color(0xFFFF55)
-            )
-        );
-    }
-
-    @Override
     public void onPassiveTick(Player player, int mastery) {
         // Grants all positive potion effects at high levels
         player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 100, 1, true, false));
@@ -62,6 +48,20 @@ public class GracefulEnlightenment extends Skill {
 
     @Override
     public void onMoveUnlock(Player player, int moveIndex) {
+        if (moveIndex == 1) {
+            // Divine grace fanfare, played once when the skill is first unlocked
+            player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 300, 2, 2, 2, 0.3);
+            player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 100, 1.5, 1.5, 1.5, 0.2);
+            player.getWorld().playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 2f, 0.8f);
+            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 2f, 1.5f);
+            player.getServer().broadcast(
+                net.kyori.adventure.text.Component.text(
+                    "✨ " + player.getName() + " has obtained DIVINE GRACE — Graceful Enlightenment! ✨",
+                    net.kyori.adventure.text.format.TextColor.color(0xFFFF55)
+                )
+            );
+        }
+
         switch (moveIndex) {
             case 1 -> player.sendMessage("§e✨ DIVINE GRACE I — Aura of Protection§7: All allies within 10 blocks gain Resistance II and Regeneration II permanently while you're nearby.");
             case 2 -> player.sendMessage("§e✨ DIVINE GRACE II — Celestial Smite§7: Call divine judgment on a target — dealing 30 damage, permanently reducing their max hearts by 1, and healing you for 10 hearts.");
