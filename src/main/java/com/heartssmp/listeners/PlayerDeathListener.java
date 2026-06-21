@@ -7,10 +7,15 @@ import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.*;
-import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class PlayerDeathListener implements Listener {
     private final HeartsSMPPlugin plugin;
+    private final Set<UUID> usedPhoenixRebirth = new HashSet<>();
+    private final Set<UUID> usedAuroraRevive = new HashSet<>();
 
     public PlayerDeathListener(HeartsSMPPlugin plugin) {
         this.plugin = plugin;
@@ -23,9 +28,9 @@ public class PlayerDeathListener implements Listener {
         if (data == null) return;
 
         // ── PHOENIX RISE — Rebirth (passive on death) ─────────────────
-        if (data.hasSkill("phoenix_rise") && !data.hasUsedPhoenixRebirth()) {
+        if (data.hasSkill("phoenix_rise") && !usedPhoenixRebirth.contains(player.getUniqueId())) {
             event.setCancelled(true);
-            data.setUsedPhoenixRebirth(true);
+            usedPhoenixRebirth.add(player.getUniqueId());
 
             double maxHp = player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue();
             player.setHealth(maxHp * 0.5);
@@ -46,9 +51,9 @@ public class PlayerDeathListener implements Listener {
 
         // ── AURORA GEM Mastery 3 — Light of Aurora (once per life) ────
         if (data.getGemId() != null && data.getGemId().equals("LEGENDARY_AURORA")
-                && data.getGemMastery() >= 3 && !data.hasUsedAuroraRevive()) {
+                && data.getGemMastery() >= 3 && !usedAuroraRevive.contains(player.getUniqueId())) {
             event.setCancelled(true);
-            data.setUsedAuroraRevive(true);
+            usedAuroraRevive.add(player.getUniqueId());
 
             double maxHp = player.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue();
             player.setHealth(maxHp);
@@ -64,29 +69,11 @@ public class PlayerDeathListener implements Listener {
             return;
         }
 
-        // ── Normal death — remove a heart ──────────────────────────────
-        plugin.getHeartManager().removeHeart(player);
+        // ── Normal death — use existing LivesManager logic ──────────────
+        plugin.getLivesManager().onPlayerDeath(player);
 
-        int hearts = data.getHearts();
-        int lives = data.getLives();
-
-        if (hearts <= 0) {
-            if (lives <= 0) {
-                // Permadeath
-                plugin.getServer().broadcastMessage("§c[HeartsSMP] ☠ " + player.getName() + " has lost all their lives and has been eliminated!");
-                plugin.getLivesManager().handleElimination(player);
-            } else {
-                // Lose a life, reset hearts
-                plugin.getLivesManager().removeLife(player);
-                plugin.getHeartManager().resetHearts(player);
-                player.sendMessage(plugin.prefix() + "§cYou lost a life! §7Lives remaining: §e" + data.getLives());
-            }
-        } else {
-            player.sendMessage(plugin.prefix() + "§cYou lost a heart! §7Hearts remaining: §e" + hearts);
-        }
-
-        // Reset one-time skill/gem uses on respawn
-        data.setUsedPhoenixRebirth(false);
-        data.setUsedAuroraRevive(false);
+        // Reset one-time uses on next death (they respawn fresh)
+        usedPhoenixRebirth.remove(player.getUniqueId());
+        usedAuroraRevive.remove(player.getUniqueId());
     }
 }
