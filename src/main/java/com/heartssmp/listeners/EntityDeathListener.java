@@ -6,6 +6,7 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.*;
 
 public class EntityDeathListener implements Listener {
@@ -43,7 +44,7 @@ public class EntityDeathListener implements Listener {
         if (data.hasSkill("phoenix_rise") && data.getSkillMastery("phoenix_rise") >= 9) {
             double maxHp = killer.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue();
             killer.setHealth(Math.min(maxHp, killer.getHealth() + 2.0));
-            killer.getWorld().spawnParticle(Particle.FLAME, killer.getLocation().add(0,1,0), 10, 0.3, 0.3, 0.3, 0.05);
+            killer.getWorld().spawnParticle(Particle.FLAME, killer.getLocation().add(0, 1, 0), 10, 0.3, 0.3, 0.3, 0.05);
         }
 
         // ── VOID STEP — kill grants brief invisibility at mastery 6+ ───
@@ -56,12 +57,11 @@ public class EntityDeathListener implements Listener {
             killer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 1, false, true));
         }
 
-        // ── PVP KILL bonus — notify ────────────────────────────────────
-        if (event.getEntity() instanceof Player victim) {
-            plugin.getSkillManager().onPlayerKill(killer, victim);
-            plugin.getGemManager().onPlayerKill(killer, victim);
-            data.addKill();
-            killer.sendMessage(plugin.prefix() + "§cYou eliminated §e" + victim.getName() + "§c! Total kills: §e" + data.getKills());
+        // ── PVP KILL — use existing HeartManager logic ─────────────────
+        if (event.getEntity() instanceof Player) {
+            plugin.getHeartManager().onKillPlayer(killer);
+        } else {
+            plugin.getHeartManager().onKillMob(killer);
         }
     }
 }
