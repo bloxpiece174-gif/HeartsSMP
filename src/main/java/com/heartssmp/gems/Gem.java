@@ -14,9 +14,13 @@ public abstract class Gem {
     // Called when gem holder kills a player — override in subclasses if needed
     public void onKill(Player killer, Player victim, int mastery) {}
 
+    public String getFormattedName() {
+        return getRarity().getColor() + getDisplayName();
+    }
+
     public String getFullInfo(int mastery) {
         StringBuilder sb = new StringBuilder();
-        sb.append(getRarity().getColor()).append("✦ ").append(getDisplayName())
+        sb.append(getFormattedName())
           .append(" §8[").append(getRarity().getDisplayName()).append("]").append("\n");
         sb.append("§7").append(getDescription()).append("\n");
         sb.append("§eMastery: §f").append(mastery).append("/3\n");
