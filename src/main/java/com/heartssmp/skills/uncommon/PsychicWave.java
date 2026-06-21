@@ -13,6 +13,11 @@ public class PsychicWave extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onMoveUnlock(Player player, int moveIndex) {
         switch (moveIndex) {
             case 1 -> player.sendMessage("§d🔮 Mind Blast§7: Send a psychic shockwave that disorients enemies for 3s.");
