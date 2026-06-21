@@ -133,7 +133,7 @@ public class GemManager {
         PlayerData data = plugin.getDataManager().get(killer.getUniqueId());
         if (data == null || data.getGemId() == null) return;
         Gem gem = registry.get(data.getGemId());
-        if (gem != null) gem.onKill(killer, victim, data.getGemMastery());
+        if (gem != null) gem.onPlayerKill(killer, victim, data.getGemMastery());
     }
 
     public boolean upgradeGemMastery(Player player) {
@@ -150,7 +150,8 @@ public class GemManager {
             return false;
         }
         data.setGemMastery(current + 1);
-        gem.onMasteryUp(player, data.getGemMastery());
+        player.sendMessage(plugin.prefix() + "§d✦ Gem mastery upgraded! §7New ability: "
+                + gem.getRarity().getColor() + gem.getSkillDescription(data.getGemMastery()));
 
         // Update gem item in inventory
         giveGemItem(player, data.getGemId());
