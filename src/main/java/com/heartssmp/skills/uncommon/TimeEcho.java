@@ -11,6 +11,11 @@ public class TimeEcho extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onMoveUnlock(Player player, int moveIndex) {
         switch (moveIndex) {
             case 1 -> player.sendMessage("§e⏳ Echo Rewind§7: Rewind your position 3s into the past. 20s cooldown.");
