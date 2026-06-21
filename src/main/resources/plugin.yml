@@ -1,40 +1,46 @@
 name: HeartsSMP
-version: '${project.version}'
+version: 1.0.0
 main: com.heartssmp.HeartsSMPPlugin
 api-version: '1.21'
-description: Hearts, Lives, Skills, and Gems SMP Plugin
-authors: [HeartsSMP]
-website: ''
+description: Hearts, Lives, Skills, Gems and God SMP Plugin
+
+permissions:
+  heartssmp.admin:
+    description: Admin access to HeartsSMP commands
+    default: op
 
 commands:
-  sacrifice:
-    description: Sacrifice 2 hearts to gain 1 life
-    usage: /sacrifice
   stats:
-    description: View your hearts, lives, skills, and gem
+    description: View your stats
     usage: /stats [player]
   skills:
-    description: View your skills
+    description: List your skills
     usage: /skills
+  skillinfo:
+    description: View skill details
+    usage: /skillinfo <skill_id>
+  mastery:
+    description: Upgrade skill mastery
+    usage: /mastery <skill_id>
   gem:
     description: View your gem info
     usage: /gem
-  mastery:
-    description: Upgrade a skill's mastery
-    usage: /mastery <skill_id>
-  skillinfo:
-    description: View info about a specific skill
-    usage: /skillinfo <skill_id>
+  sacrifice:
+    description: Sacrifice a life
+    usage: /sacrifice
+  godsummon:
+    description: Summon God
+    usage: /godsummon [x y z]
   adminhearts:
-    description: Admin command for hearts
+    description: Admin - modify hearts
     usage: /adminhearts <player> <set|add|remove> <amount>
     permission: heartssmp.admin
   adminlives:
-    description: Admin command for lives
+    description: Admin - modify lives
     usage: /adminlives <player> <set|add|remove> <amount>
     permission: heartssmp.admin
   admingem:
-    description: Admin - set a player's gem
+    description: Admin - give gem
     usage: /admingem <player> <gem_id>
     permission: heartssmp.admin
   adminskill:
@@ -42,18 +48,18 @@ commands:
     usage: /adminskill <player> <give|remove> <skill_id>
     permission: heartssmp.admin
   adminitem:
-    description: Admin - give a custom item (e.g. golden_torch) to a player
+    description: Admin - give item
     usage: /adminitem <player> <item_id> [amount]
     permission: heartssmp.admin
   adminunban:
-    description: Admin - unban a eliminated player early
+    description: Admin - unban player
     usage: /adminunban <player>
     permission: heartssmp.admin
-  godsummon:
-    description: Summon God to a location (first Divine Trial completer only, 3 uses, requires mastery 15)
-    usage: /godsummon [x y z]
-
-permissions:
-  heartssmp.admin:
-    description: Access to all admin commands
-    default: op
+  adminmastery:
+    description: Admin - instantly max mastery
+    usage: /adminmastery <player> <skill|gem> <id|all>
+    permission: heartssmp.admin
+  admingodsummon:
+    description: Admin - summon God in specific form
+    usage: /admingodsummon <player> <25|50|75|guide>
+    permission: heartssmp.admin
