@@ -101,7 +101,9 @@ public class AdminCommand implements CommandExecutor {
                     plugin.getSkillManager().grantDivineSkill(target);
                 } else {
                     data.addSkill(skillId);
-                    plugin.getSkillManager().getSkill(skillId).onUnlock(target);
+                    for (int i = 1; i <= 5; i++) {
+                        plugin.getSkillManager().getSkill(skillId).onMoveUnlock(target, i);
+                    }
                     plugin.getDivineTrialManager().checkMythicalCompletion(target, data);
                 }
                 plugin.getDataManager().save(target.getUniqueId());
