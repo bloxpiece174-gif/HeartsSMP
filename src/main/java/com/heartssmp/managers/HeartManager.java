@@ -3,7 +3,6 @@ package com.heartssmp.managers;
 import com.heartssmp.HeartsSMPPlugin;
 import com.heartssmp.data.PlayerData;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 
 public class HeartManager {
@@ -13,71 +12,60 @@ public class HeartManager {
         this.plugin = plugin;
     }
 
-    public int getMaxHearts() {
-        return plugin.getConfig().getInt("hearts.maximum", 30);
-    }
-
-    public int getKillReward() {
-        return plugin.getConfig().getInt("hearts.kill-reward", 1);
+    public void setHearts(Player player, int amount) {
+        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
+        if (data == null) return;
+        data.setHearts(amount);
+        applyMaxHealth(player, amount);
+        plugin.getDataManager().save(player.getUniqueId());
     }
 
     public void addHearts(Player player, int amount) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         if (data == null) return;
-
-        int newHearts = Math.min(data.getHearts() + amount, getMaxHearts());
-        data.setHearts(newHearts);
-        applyMaxHealth(player, data);
+        int max = plugin.getConfig().getInt("hearts.max", 20);
+        int newVal = Math.min(data.getHearts() + amount, max);
+        data.setHearts(newVal);
+        applyMaxHealth(player, newVal);
+        plugin.getDataManager().save(player.getUniqueId());
     }
 
     public void removeHearts(Player player, int amount) {
         PlayerData data = plugin.getDataManager().get(player.getUniqueId());
         if (data == null) return;
-
-        int newHearts = data.getHearts() - amount;
-        data.setHearts(newHearts);
-        applyMaxHealth(player, data);
+        int newVal = Math.max(data.getHearts() - amount, 1);
+        data.setHearts(newVal);
+        applyMaxHealth(player, newVal);
+        plugin.getDataManager().save(player.getUniqueId());
     }
 
-    public void setHearts(Player player, int amount) {
-        PlayerData data = plugin.getDataManager().get(player.getUniqueId());
-        if (data == null) return;
-
-        int clamped = Math.max(0, Math.min(amount, getMaxHearts()));
-        data.setHearts(clamped);
-        applyMaxHealth(player, data);
+    // Remove exactly 1 heart on death
+    public void removeHeart(Player player) {
+        removeHearts(player, 1);
     }
 
-    public void applyMaxHealth(Player player, PlayerData data) {
-        AttributeInstance attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        if (attr == null) return;
-        double newMax = data.getHearts() * 2.0;
-        newMax = Math.max(2.0, newMax);
-        attr.setBaseValue(newMax);
-        if (player.getHealth() > newMax) {
-            player.setHealth(newMax);
-        }
+    // Reset hearts to starting value
+    public void resetHearts(Player player) {
+        int starting = plugin.getConfig().getInt("hearts.starting", 10);
+        setHearts(player, starting);
     }
 
     public void onKillPlayer(Player killer) {
-        PlayerData data = plugin.getDataManager().get(killer.getUniqueId());
-        if (data == null) return;
-
-        addHearts(killer, getKillReward());
-        data.addKill();
-
-        killer.sendMessage(plugin.prefix() + "§c+1 Heart §7from player kill! §c❤ " + data.getHearts() + " hearts");
-        plugin.getDataManager().save(killer.getUniqueId());
-
-        plugin.getSkillManager().checkSkillUnlock(killer, data);
+        // Reward killer with +1 heart (configurable)
+        if (plugin.getConfig().getBoolean("hearts.reward-on-kill", false)) {
+            addHearts(killer, 1);
+            killer.sendMessage(plugin.prefix() + "§c+1 Heart §7for player kill!");
+        }
+        plugin.getSkillManager().onKillPlayer(killer);
     }
 
     public void onKillMob(Player killer) {
-        PlayerData data = plugin.getDataManager().get(killer.getUniqueId());
-        if (data == null) return;
+        plugin.getSkillManager().onKillMob(killer);
+    }
 
-        data.addMobKill();
-        plugin.getDataManager().save(killer.getUniqueId());
-        plugin.getSkillManager().checkSkillUnlock(killer, data);
+    private void applyMaxHealth(Player player, int hearts) {
+        double maxHp = hearts * 2.0;
+        player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHp);
+        if (player.getHealth() > maxHp) player.setHealth(maxHp);
     }
 }
