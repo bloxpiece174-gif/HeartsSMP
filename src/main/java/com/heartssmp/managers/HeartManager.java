@@ -63,7 +63,11 @@ public class HeartManager {
         plugin.getSkillManager().onKillMob(killer);
     }
 
-    private void applyMaxHealth(Player player, int hearts) {
+    public void applyMaxHealth(Player player, PlayerData data) {
+        applyMaxHealth(player, data.getHearts());
+    }
+
+    public void applyMaxHealth(Player player, int hearts) {
         double maxHp = hearts * 2.0;
         player.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(maxHp);
         if (player.getHealth() > maxHp) player.setHealth(maxHp);
