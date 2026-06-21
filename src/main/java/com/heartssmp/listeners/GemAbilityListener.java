@@ -1,5 +1,6 @@
 package com.heartssmp.listeners;
 
+import org.bukkit.inventory.ItemStack;
 import com.heartssmp.HeartsSMPPlugin;
 import com.heartssmp.data.PlayerData;
 import org.bukkit.*;
