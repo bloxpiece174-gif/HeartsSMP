@@ -12,6 +12,11 @@ public class HuntersMark extends Skill {
     }
 
     @Override
+    public void onPassiveTick(Player player, int mastery) {
+        // No per-tick passive effect — this skill's passive is handled via on-hit/on-kill logic
+    }
+
+    @Override
     public void onMoveUnlock(Player player, int moveIndex) {
         switch (moveIndex) {
             case 1 -> player.sendMessage("§6🎯 Mark Target§7: Mark a player — deal +25% damage to them for 12s.");
