@@ -15,13 +15,24 @@ public abstract class Skill {
     // Called when skill holder kills a player — override if needed
     public void onKill(Player killer, Player victim, int mastery) {}
 
+    public String getFormattedName() {
+        return getRarity().getColorCode() + getDisplayName();
+    }
+
+    public String getMovesDescription(int mastery) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("§eMoves:\n");
+        sb.append(getRarity().getColorCode()).append(getMasteryDescription(mastery));
+        return sb.toString();
+    }
+
     public String getFullInfo(int mastery) {
         StringBuilder sb = new StringBuilder();
-        sb.append(getRarity().getColor()).append("⚔ ").append(getDisplayName())
+        sb.append(getFormattedName())
           .append(" §8[").append(getRarity().getDisplayName()).append("]").append("\n");
         sb.append("§7").append(getDescription()).append("\n");
         sb.append("§eMastery: §f").append(mastery).append("/").append(getMaxMastery()).append("\n");
-        sb.append(getRarity().getColor()).append(getMasteryDescription(mastery));
+        sb.append(getRarity().getColorCode()).append(getMasteryDescription(mastery));
         return sb.toString();
     }
 }
